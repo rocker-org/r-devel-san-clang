@@ -76,6 +76,7 @@ RUN cd /tmp/R-devel \
    CXXFLAGS="-pipe -Wall -pedantic -O2" \
    CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero" \
    CXX="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr" \
+   CXX1X="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr" \
    FC="gfortran" \
    F77="gfortran" \
    ./configure --enable-R-shlib \
