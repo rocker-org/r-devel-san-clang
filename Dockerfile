@@ -73,11 +73,13 @@ RUN cd /tmp/R-devel \
    R_PRINTCMD=/usr/bin/lpr \
    LIBnn=lib \
    AWK=/usr/bin/awk \
-   CFLAGS="-pipe -std=gnu99 -Wall -pedantic -O2" \
-   CXXFLAGS="-pipe -Wall -pedantic -O2" \
-   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero" \
-   CXX="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr" \
-   CXX1X="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr" \
+   CFLAGS="-pipe -std=gnu99 -Wall -pedantic -g" \
+   CXXFLAGS="-pipe -Wall -pedantic -g" \
+   FFLAGS="-pipe -Wall -pedantic -g" \
+   FCFLAGS="-pipe -Wall -pedantic -g" \
+   CC="clang-3.5 -fsanitize=address,unsigned-integer-overflow,alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
+   CXX="clang++-3.5 -fsanitize=address,unsigned-integer-overflow,alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
+   CXX1X="clang++-3.5 -fsanitize=address,unsigned-integer-overflow,alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
    FC="gfortran" \
    F77="gfortran" \
    ./configure --enable-R-shlib \
