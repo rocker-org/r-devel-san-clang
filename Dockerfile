@@ -78,8 +78,8 @@ RUN cd /tmp/R-devel \
    FFLAGS="-pipe -Wall -pedantic -g" \
    FCFLAGS="-pipe -Wall -pedantic -g" \
    CC="clang-3.5 -fsanitize=alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound" \
-   CXX="clang++-3.5 -fsanitize=alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound" \
-   CXX1X="clang++-3.5 -fsanitize=alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound" \
+   CXX="clang++-3.5 -fsanitize=alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
+   CXX1X="clang++-3.5 -fsanitize=alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
    FC="gfortran" \
    F77="gfortran" \
    ./configure --enable-R-shlib \
