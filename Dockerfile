@@ -77,9 +77,9 @@ RUN cd /tmp/R-devel \
    CXXFLAGS="-pipe -Wall -pedantic -g" \
    FFLAGS="-pipe -Wall -pedantic -g" \
    FCFLAGS="-pipe -Wall -pedantic -g" \
-   CC="clang-3.5 -fno-sanitize-recover -fsanitize=undefined,alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound" \
-   CXX="clang++-3.5 -fno-sanitize-recover -fsanitize=undefined,alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
-   CXX1X="clang++-3.5 -fno-sanitize-recover -fsanitize=undefined,alignment,bounds,bool,enum,float-cast-overflow,float-divide-by-zero,function,integer-divide-by-zero,null,object-size,return,shift,signed-integer-overflow,unreachable,vla-bound,vptr" \
+   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+   CXX="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+   CXX1X="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
    FC="gfortran" \
    F77="gfortran" \
    ./configure --enable-R-shlib \
