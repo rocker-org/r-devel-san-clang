@@ -119,7 +119,7 @@ RUN cd /tmp \
 && git clone https://github.com/eddelbuettel/littler.git
 
 RUN cd /tmp/littler \
-&& CC=$(shell RD CMD config CC) PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
+&& CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
 && ./configure --prefix=/usr \
 && make \
 && make install \
