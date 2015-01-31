@@ -1,9 +1,7 @@
 ## Emacs, make this -*- mode: sh; -*-
 
 ## start with the Docker 'base R' Debian-based image
-## while waiting for PR to be merged use rocker/r-base
-#FROM r-base:latest
-FROM rocker/r-base
+FROM r-base:latest
 
 ## This handle reaches Carl and Dirk
 MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuettel.com
@@ -15,11 +13,11 @@ RUN apt-get update -qq \
 ## From the Build-Depends of the Debian R package, plus subversion, and clang-3.5
 ## 
 ## Also add   git autotools-dev automake  so that we can build littler from source
-## Commented-out as littler updated upstream:     automake autotools-dev 
-
 ##
 RUN apt-get update -qq \
 && apt-get install -y --no-install-recommends \
+   automake \
+   autotools-dev \
    bash-completion \
    bison \
    clang-3.5 \
@@ -117,18 +115,15 @@ RUN echo 'options("repos"="http://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rp
 ##   ./bootstrap
 
 ## Check out littler
-##RUN cd /tmp \
-##&& git clone https://github.com/eddelbuettel/littler.git
-##
-##RUN cd /tmp/littler \
-##&& CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
-##&& ./configure --prefix=/usr \
-##&& make \
-##&& make install \
-##&& cp -vax examples/*.r /usr/local/bin 
-##
-## Just copy examples
-RUN cp -vax /usr/share/doc/littler/examples/* /usr/local/bin
+RUN cd /tmp \
+&& git clone https://github.com/eddelbuettel/littler.git
+
+RUN cd /tmp/littler \
+&& CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
+&& ./configure --prefix=/usr \
+&& make \
+&& make install \
+&& cp -vax examples/*.r /usr/local/bin 
 
 RUN cd /usr/local/bin \
 && mv R Rdevel \
