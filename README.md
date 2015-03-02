@@ -11,7 +11,7 @@ and to
 Both require a particularly instrumented binary of R.  This repository
 provides a Docker container with such a binary, based on the R-devel sources.
 
-This repository uses clang; a [sibbling repository](https://github.com/rocker-org/r-devel-san) uses gcc.
+This repository uses clang; a [sibling repository](https://github.com/rocker-org/r-devel-san) uses gcc.
 
 ## Rocker-Org
 
