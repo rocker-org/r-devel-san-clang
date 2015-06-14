@@ -8,7 +8,7 @@ MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuette
 
 ## Remain current
 RUN apt-get update -qq \
-&& apt-get dist-upgrade -y
+	&& apt-get dist-upgrade -t unstable -y
 
 ## From the Build-Depends of the Debian R package, plus subversion, and clang-3.5
 ## 
@@ -71,7 +71,7 @@ RUN cd /tmp \
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago
 RUN cd /tmp/R-devel \
 	&& R_PAPERSIZE=letter \
- 	   R_BATCHSAVE="--no-save --no-restore" \
+	   R_BATCHSAVE="--no-save --no-restore" \
 	   R_BROWSER=xdg-open \
 	   PAGER=/usr/bin/pager \
 	   PERL=/usr/bin/perl \
@@ -90,12 +90,12 @@ RUN cd /tmp/R-devel \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
-               --without-blas \
-               --without-lapack \
-               --with-readline \
-               --without-recommended-packages \
-               --program-suffix=dev \
-               --disable-openmp \
+	       --without-blas \
+	       --without-lapack \
+	       --with-readline \
+	       --without-recommended-packages \
+	       --program-suffix=dev \
+	       --disable-openmp \
 	&& make \
 	&& make install \
 	&& make clean
@@ -107,9 +107,9 @@ RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/libra
 RUN echo 'options("repos"="http://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
 
 ## to also build littler against RD
-##   1)  apt-get install git autotools-dev automake
-##   2)  use CC from RD CMD config CC, ie same as R
-##   3)  use PATH to include RD's bin, ie
+##   1)	 apt-get install git autotools-dev automake
+##   2)	 use CC from RD CMD config CC, ie same as R
+##   3)	 use PATH to include RD's bin, ie
 ## ie 
 ##   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
 ##   PATH="/usr/local/lib/R/bin/:$PATH" \
