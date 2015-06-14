@@ -8,14 +8,14 @@ MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuette
 
 ## Remain current
 RUN apt-get update -qq \
-	&& apt-get dist-upgrade -t unstable -y
+	&& apt-get dist-upgrade -y
 
 ## From the Build-Depends of the Debian R package, plus subversion, and clang-3.5
 ## 
 ## Also add   git autotools-dev automake  so that we can build littler from source
 ##
 RUN apt-get update -qq \
-	&& apt-get install -y --no-install-recommends \
+	&& apt-get install -t unstable -y --no-install-recommends \
 		automake \
 		autotools-dev \
 		bash-completion \
