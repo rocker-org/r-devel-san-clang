@@ -20,7 +20,7 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-3.5 \
+		clang-3.7 \
 		debhelper \
 		default-jdk \
 		g++ \
@@ -68,7 +68,8 @@ RUN apt-get update -qq \
 RUN cd /tmp \
 	&& svn co http://svn.r-project.org/R/trunk R-devel 
 
-## Build and install according extending the standard 'recipe' I emailed/posted years ago
+## Build and install according extending the standard 'recipe' I emailed/posted years ago.
+## JW updated to use clang 3.7, sanitize address. Other discrepancies (compare to Ripley's environment are dropped "function" and "object-size" from no-sanitize
 RUN cd /tmp/R-devel \
 	&& R_PAPERSIZE=letter \
 	   R_BATCHSAVE="--no-save --no-restore" \
@@ -80,13 +81,14 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CFLAGS="-pipe -std=gnu99 -Wall -pedantic -g" \
-	   CXXFLAGS="-pipe -Wall -pedantic -g" \
-	   FFLAGS="-pipe -Wall -pedantic -g" \
-	   FCFLAGS="-pipe -Wall -pedantic -g" \
-	   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-	   CXX="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-	   CXX1X="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+## Ripley appears to use -O2 here, perhaps this is leading to my errors?
+	   CFLAGS="-pipe -std=gnu99 -Wall -pedantic -g -mtune=native" \
+	   CXXFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
+	   FFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
+	   FCFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
+	   CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+	   CXX="clang++-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+	   CXX1X="clang++-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -100,11 +102,15 @@ RUN cd /tmp/R-devel \
 	&& make install \
 	&& make clean
 
+## Ripley does this: 
+## MAIN_LDFLAGS=-fsanitize=address,undefined
+## setenv ASAN_OPTIONS 'detect_leaks=0:detect_odr_violation=0'
+
 ## Set Renviron to get libs from base R install
 RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/library:/usr/lib/R/library'}" >> /usr/local/lib/R/etc/Renviron
 
 ## Set default CRAN repo
-RUN echo 'options("repos"="http://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
+RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
 
 ## to also build littler against RD
 ##   1)	 apt-get install git autotools-dev automake
@@ -120,7 +126,7 @@ RUN cd /tmp \
 	&& git clone https://github.com/eddelbuettel/littler.git
 
 RUN cd /tmp/littler \
-	&& CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
+	&& CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
 	&& ./configure --prefix=/usr \
 	&& make \
 	&& make install \
