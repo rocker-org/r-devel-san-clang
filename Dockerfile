@@ -7,10 +7,10 @@ FROM r-base:latest
 MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuettel.com
 
 ## Remain current
-RUN apt-get update -qq \
-	&& apt-get dist-upgrade -y
+RUN apt-get update -qq
+RUN apt-get dist-upgrade -y
 
-## From the Build-Depends of the Debian R package, plus subversion, and clang-3.5
+## From the Build-Depends of the Debian R package, plus subversion, and clang-3.7
 ## 
 ## Also add   git autotools-dev automake  so that we can build littler from source
 ##
@@ -20,7 +20,7 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-3.7 \
+		clang-3.5 \
 		debhelper \
 		default-jdk \
 		g++ \
@@ -64,12 +64,21 @@ RUN apt-get update -qq \
 		xvfb \
 		zlib1g-dev 
 
+RUN apt-get update -qq \
+	&& apt-get dist-upgrade -y \
+	&& apt-get install -t unstable -y \
+		apt-utils \
+		clang-3.6
+
 ## Check out R-devel
 RUN cd /tmp \
 	&& svn co http://svn.r-project.org/R/trunk R-devel 
 
+## RUN ls -l /usr/bin/clang*
+
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago.
 ## JW updated to use clang 3.7, sanitize address. Other discrepancies (compare to Ripley's environment are dropped "function" and "object-size" from no-sanitize
+
 RUN cd /tmp/R-devel \
 	&& R_PAPERSIZE=letter \
 	   R_BATCHSAVE="--no-save --no-restore" \
@@ -86,9 +95,9 @@ RUN cd /tmp/R-devel \
 	   CXXFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
 	   FFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
 	   FCFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
-	   CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-	   CXX="clang++-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-	   CXX1X="clang++-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+	   CC="clang-3.6 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+	   CXX="clang++-3.6 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+	   CXX1X="clang++-3.6 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -117,7 +126,7 @@ RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/R
 ##   2)	 use CC from RD CMD config CC, ie same as R
 ##   3)	 use PATH to include RD's bin, ie
 ## ie 
-##   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+##   CC="clang-3.7 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
 ##   PATH="/usr/local/lib/R/bin/:$PATH" \
 ##   ./bootstrap
 
@@ -126,7 +135,7 @@ RUN cd /tmp \
 	&& git clone https://github.com/eddelbuettel/littler.git
 
 RUN cd /tmp/littler \
-	&& CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
+	&& CC="clang-3.6 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
 	&& ./configure --prefix=/usr \
 	&& make \
 	&& make install \
