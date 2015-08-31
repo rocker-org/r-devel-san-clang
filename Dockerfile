@@ -89,26 +89,13 @@ RUN cd llvm-build && cmake \
   -DCMAKE_BUILD_TYPE:STRING=Release \
   -DLLVM_TARGETS_TO_BUILD:STRING=X86 \
   ../llvm
-RUN make -j5 -C llvm-build && make -C llvm-build install && rm -rf llvm-build
-
-# alternative CMD is without square brackets, and this executes in sh
-
-# this command could be the invocation or to run check.r
-
+RUN make -C llvm-build && make -C llvm-build install && rm -rf llvm-build
 
 ## Emacs, make this -*- mode: sh; -*-
 
-## get more packages, e.g clang
-## RUN apt-get update -qq && apt-get dist-upgrade -y && apt-get install -t unstable -y apt-utils clang-3.8
-
-# TESTING
-RUN ls -l /usr/local/bin/clang*
-RUN clang --version
-RUN clang-3.8 --version
-RUN which clang
-
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago.
-## JW updated to use clang 3.7, sanitize address. Other discrepancies (compare to Ripley's environment are dropped "function" and "object-size" from no-sanitize
+
+RUN export ASAN_OPTIONS 'detect_leaks=0:detect_odr_violation=0'
 
 RUN cd /tmp/R-devel \
 	&& R_PAPERSIZE=letter \
@@ -126,8 +113,8 @@ RUN cd /tmp/R-devel \
 	   FFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
 	   FCFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
 	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
-	   CXX="clang++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
-	   CXX1X="clang++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
+	   CXX="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
+	   CXX1X="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -141,26 +128,13 @@ RUN cd /tmp/R-devel \
 	&& make install \
 	&& make clean
 
-## Ripley does this: 
-## MAIN_LDFLAGS=-fsanitize=address,undefined
-## setenv ASAN_OPTIONS 'detect_leaks=0:detect_odr_violation=0'
-
 ## Set Renviron to get libs from base R install
 RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/library:/usr/lib/R/library'}" >> /usr/local/lib/R/etc/Renviron
 
 ## Set default CRAN repo
 RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
 
-## to also build littler against RD
-##   1)	 apt-get install git autotools-dev automake
-##   2)	 use CC from RD CMD config CC, ie same as R
-##   3)	 use PATH to include RD's bin, ie
-## ie 
-##   CC="clang-3.7 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-##   PATH="/usr/local/lib/R/bin/:$PATH" \
-##   ./bootstrap
-
-## Check out littler
+## Check out and build littler
 RUN cd /tmp \
 	&& git clone https://github.com/eddelbuettel/littler.git
 
@@ -192,6 +166,7 @@ RUN r -e "install.packages(c('devtools', 'XML', 'testthat', 'Rcpp', 'ggplot2', '
 	'evaluate', 'plyr', 'gtable', 'reshape2', 'knitr', 'microbenchmark', 'profr', 'xtable', \
 	'rmarkdown'))"
 
-#ENTRYPOINT ["check.r", "--install-deps"]
-#CMD ["--help"]
-CMD ["bash"]
+# ENTRYPOINT ["check.r", "--install-deps"]
+# ENTRYPOINT ["R"]
+# CMD ["--help"]
+
