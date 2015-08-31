@@ -14,6 +14,7 @@ RUN apt-get dist-upgrade -y
 ## 
 ## Also add   git autotools-dev automake  so that we can build littler from source
 ##
+
 RUN apt-get update -qq \
 	&& apt-get install -t unstable -y --no-install-recommends \
 		automake \
@@ -63,8 +64,8 @@ RUN apt-get update -qq \
 		xvfb \
 		zlib1g-dev 
 
-RUN apt-get update -qq \
-	&& apt-get install -t unstable -y cmake
+## Must build clang with cmake in order to get sanitizers
+RUN apt-get install -t unstable -y cmake
 
 ## Check out R-devel
 RUN cd /tmp \
@@ -84,17 +85,25 @@ RUN mv clang-tools-extra llvm/tools/clang/tools
 RUN mv libcxx llvm/projects
 RUN mv libcxxabi llvm/projects
 
+
+## Use latest debian clang to build clang.
+RUN apt-get install -t unstable -y clang-3.7
+# then take care to invoke the built version later...
+
 RUN mkdir llvm-build
 RUN cd llvm-build && cmake \
   -DCMAKE_BUILD_TYPE:STRING=Release \
   -DLLVM_TARGETS_TO_BUILD:STRING=X86 \
+  -DCMAKE_C_COMPILER=clang-3.7 \
+  -DCMAKE_CXX_COMPILER=clang++-3.7 \
   ../llvm
-RUN make -C llvm-build && make -C llvm-build install && rm -rf llvm-build
+RUN make -j5 -C llvm-build && make -C llvm-build install && rm -rf llvm-build
 
 ## Emacs, make this -*- mode: sh; -*-
 
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago.
 
+# Replicating a CRAN maintainer's environment
 RUN export ASAN_OPTIONS 'detect_leaks=0:detect_odr_violation=0'
 
 RUN cd /tmp/R-devel \
@@ -108,13 +117,12 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CFLAGS="-pipe -std=gnu99 -Wall -pedantic -g -mtune=native -O2" \
-	   CXXFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
-	   FFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
-	   FCFLAGS="-pipe -Wall -pedantic -g -mtune=native" \
-	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
-	   CXX="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
-	   CXX1X="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
+	   CFLAGS="-Wall -pedantic -g -mtune=native -O2" \
+	   CXXFLAGS="-Wall -pedantic -g -mtune=native -O2" \
+	   FFLAGS="-Wall -g -mtune=native -O2" \
+	   FCFLAGS="-Wall -g -mtune=native -O2" \
+	   CC="clang-3.8 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero" \
+	   CXX="clang++-3.8 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -130,6 +138,11 @@ RUN cd /tmp/R-devel \
 
 ## Set Renviron to get libs from base R install
 RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/library:/usr/lib/R/library'}" >> /usr/local/lib/R/etc/Renviron
+
+## it seems that R is building with the right environment without the following:
+## RUN mv Makefile.site /usr/local/lib/R/etc
+
+RUN cat << EOF > /usr/lib/local/R/etc/Makevars.site
 
 ## Set default CRAN repo
 RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
@@ -170,3 +183,6 @@ RUN r -e "install.packages(c('devtools', 'XML', 'testthat', 'Rcpp', 'ggplot2', '
 # ENTRYPOINT ["R"]
 # CMD ["--help"]
 
+# how to build myself:
+# current directory at project root, i.e. containing Dockerfile and Makevars.site
+# docker build -t r-clang-san .
