@@ -85,7 +85,6 @@ RUN mv clang-tools-extra llvm/tools/clang/tools
 RUN mv libcxx llvm/projects
 RUN mv libcxxabi llvm/projects
 
-
 ## Use latest debian clang to build clang.
 RUN apt-get install -t unstable -y clang-3.7
 # then take care to invoke the built version later...
@@ -121,8 +120,8 @@ RUN cd /tmp/R-devel \
 	   CXXFLAGS="-Wall -pedantic -g -mtune=native -O2" \
 	   FFLAGS="-Wall -g -mtune=native -O2" \
 	   FCFLAGS="-Wall -g -mtune=native -O2" \
-	   CC="clang-3.8 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero" \
-	   CXX="clang++-3.8 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr" \
+	   CC="clang-3.8 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
+	   CXX="clang-3.8 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr -fno-omit-frame-pointer" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -132,7 +131,7 @@ RUN cd /tmp/R-devel \
 	       --without-recommended-packages \
 	       --program-suffix=dev \
 	       --disable-openmp \
-	&& make \
+	&& make -j5 \
 	&& make install \
 	&& make clean
 
@@ -142,7 +141,7 @@ RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/libra
 ## it seems that R is building with the right environment without the following:
 ## RUN mv Makefile.site /usr/local/lib/R/etc
 
-RUN cat << EOF > /usr/lib/local/R/etc/Makevars.site
+## RUN cat << EOF > /usr/lib/local/R/etc/Makevars.site # just move file instead
 
 ## Set default CRAN repo
 RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
@@ -152,7 +151,7 @@ RUN cd /tmp \
 	&& git clone https://github.com/eddelbuettel/littler.git
 
 RUN cd /tmp/littler \
-	&& CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
+	&& CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
 	&& ./configure --prefix=/usr \
 	&& make \
 	&& make install \
@@ -174,6 +173,9 @@ RUN apt-get update -y && apt-get install -y -t unstable libxml2-dev libssl-dev
 ##	&& ln -s Rscriptdevel RDscript
 
 ## now we can pre-install a load of packages we know we'll need
+
+RUN r -e "install.packages('Rcpp')"
+
 RUN r -e "install.packages(c('devtools', 'XML', 'testthat', 'Rcpp', 'ggplot2', 'brew', \
 	'rcolorbrewer', 'dichromat', 'munsell', 'checkmate', 'scales', 'proto', 'catools', \ 
 	'evaluate', 'plyr', 'gtable', 'reshape2', 'knitr', 'microbenchmark', 'profr', 'xtable', \
