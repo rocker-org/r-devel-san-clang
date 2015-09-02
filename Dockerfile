@@ -82,8 +82,8 @@ RUN git clone http://llvm.org/git/libcxxabi.git
 RUN mv clang llvm/tools
 RUN mv compiler-rt llvm/projects
 RUN mv clang-tools-extra llvm/tools/clang/tools
-RUN mv libcxx llvm/projects
-RUN mv libcxxabi llvm/projects
+# RUN mv libcxx llvm/projects
+# RUN mv libcxxabi llvm/projects
 
 ## Use latest debian clang to build clang.
 RUN apt-get install -t unstable -y clang-3.7
@@ -121,7 +121,7 @@ RUN cd /tmp/R-devel \
 	   FFLAGS="-Wall -g -mtune=native -O2" \
 	   FCFLAGS="-Wall -g -mtune=native -O2" \
 	   CC="clang-3.8 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
-	   CXX="clang-3.8 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr -fno-omit-frame-pointer" \
+	   CXX="clang-3.8 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr -fno-omit-frame-pointer" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -174,12 +174,12 @@ RUN apt-get update -y && apt-get install -y -t unstable libxml2-dev libssl-dev
 
 ## now we can pre-install a load of packages we know we'll need
 
-RUN r -e "install.packages('Rcpp')"
+# RUN r -e "install.packages('Rcpp')"
 
-RUN r -e "install.packages(c('devtools', 'XML', 'testthat', 'Rcpp', 'ggplot2', 'brew', \
-	'rcolorbrewer', 'dichromat', 'munsell', 'checkmate', 'scales', 'proto', 'catools', \ 
-	'evaluate', 'plyr', 'gtable', 'reshape2', 'knitr', 'microbenchmark', 'profr', 'xtable', \
-	'rmarkdown'))"
+#RUN r -e "install.packages(c('devtools', 'XML', 'testthat', 'Rcpp', 'ggplot2', 'brew', \
+#	'rcolorbrewer', 'dichromat', 'munsell', 'checkmate', 'scales', 'proto', 'catools', \ 
+#	'evaluate', 'plyr', 'gtable', 'reshape2', 'knitr', 'microbenchmark', 'profr', 'xtable', \
+#	'rmarkdown'))"
 
 # ENTRYPOINT ["check.r", "--install-deps"]
 # ENTRYPOINT ["R"]
