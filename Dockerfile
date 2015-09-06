@@ -82,8 +82,8 @@ RUN git clone http://llvm.org/git/libcxxabi.git
 RUN mv clang llvm/tools
 RUN mv compiler-rt llvm/projects
 RUN mv clang-tools-extra llvm/tools/clang/tools
-# RUN mv libcxx llvm/projects
-# RUN mv libcxxabi llvm/projects
+RUN mv libcxx llvm/projects
+RUN mv libcxxabi llvm/projects
 
 ## Use latest debian clang to build clang.
 RUN apt-get install -t unstable -y clang-3.7
@@ -93,9 +93,9 @@ RUN mkdir llvm-build
 RUN cd llvm-build && cmake \
   -DCMAKE_BUILD_TYPE:STRING=Release \
   -DLLVM_TARGETS_TO_BUILD:STRING=X86 \
-  -DCMAKE_C_COMPILER=clang-3.7 \
-  -DCMAKE_CXX_COMPILER=clang++-3.7 \
   ../llvm
+#  -DCMAKE_C_COMPILER=clang-3.7 \
+#  -DCMAKE_CXX_COMPILER=clang++-3.7 \
 RUN make -j5 -C llvm-build && make -C llvm-build install && rm -rf llvm-build
 
 ## Emacs, make this -*- mode: sh; -*-
