@@ -6,8 +6,8 @@ FROM rocker/r-devel:latest
 MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuettel.com
 
 ## Remain current
-RUN apt-get update -qq \
-	&& apt-get dist-upgrade -y
+RUN apt-get update -qq
+RUN apt-get dist-upgrade -y
 
 # pull in build dependencies for llvm-toolchain-3.7
 # can't use debian clang because their build with automake doesn't work with sanitizers
@@ -15,6 +15,9 @@ RUN apt-get update -qq \
 	&& apt-get install -t unstable -y --no-install-recommends \
 		cmake flex bison dejagnu tcl expect perl libtool chrpath texinfo sharutils libffi-dev lsb-release patchutils diffstat xz-utils python-dev libedit-dev \
 		swig python-sphinx ocaml-nox binutils-dev libjsoncpp-dev lcov procps help2man dh-ocaml zlib1g-dev
+
+## Must build clang with cmake in order to get sanitizers
+RUN apt-get install -t unstable -y cmake
 
 ## Check out R-devel
 RUN cd /tmp \
@@ -46,6 +49,9 @@ RUN mkdir /tmp/llvm-build \
 RUN cd /tmp \
 	&& make -j5 -C llvm-build && make -C llvm-build install && rm -rf llvm-build
 
+# Replicating a CRAN maintainer's environment
+# ENV ASAN_OPTIONS 'detect_leaks=0:detect_odr_violation=0'
+
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago
 # potential tweaks here:
 #	don't disable openmp (gcc definitely fails without this, not sure yet about clang versions)
@@ -57,6 +63,9 @@ RUN cd /tmp \
 
 # did drop gnu99 from CFLAGS
 # dropped pedantic to try to fix long long problem
+
+#  -DCMAKE_C_COMPILER=clang-3.7 \
+#  -DCMAKE_CXX_COMPILER=clang++-3.7 \
 RUN cd /tmp/R-san \
 	&& R_PAPERSIZE=letter \
 	   R_BATCHSAVE="--no-save --no-restore" \
@@ -68,13 +77,13 @@ RUN cd /tmp/R-san \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CFLAGS="-pipe -Wall -g" \
-	   CXXFLAGS="-pipe -Wall -g" \
-	   FFLAGS="-pipe -Wall -g" \
-	   FCFLAGS="-pipe -Wall -g" \
-	   CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
-	   CXX="clang-3.7 -stdlib=stdc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
-	   CXX1X="clang-3.7 -stdlib=stdc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" \
+	   CFLAGS="-pipe -Wall -g -mtune=native" \
+	   CXXFLAGS="-pipe -Wall -g -mtune=native" \
+	   FFLAGS="-pipe -Wall -g -mtune=native" \
+	   FCFLAGS="-pipe -Wall -g -mtune=native" \
+	   CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,function -fno-sanitize-recover=undefined,integer -fno-omit-frame-pointer" \
+	   CXX="clang-3.7 -stdlib=stdc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer -fno-omit-frame-pointer" \
+	   CXX1X="clang-3.7 -stdlib=stdc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer -fno-omit-frame-pointer" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
@@ -84,12 +93,17 @@ RUN cd /tmp/R-san \
 	       --without-recommended-packages \
 	       --program-suffix=san \
 	       --disable-openmp \
-	&& make \
+	&& make -j5 \
 	&& make install \
 	&& make clean
 
 ## Set Renviron to get libs from base R install
 RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/library:/usr/lib/R/library'}" >> /usr/local/lib/R/etc/Renviron
+
+## it seems that R is building with the right environment without the following:
+## RUN mv Makefile.site /usr/local/lib/R/etc
+
+## RUN cat << EOF > /usr/lib/local/R/etc/Makevars.site # just move file instead
 
 ## Set default CRAN repo
 RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rprofile.site
@@ -107,10 +121,11 @@ RUN echo 'options("repos"="https://cran.rstudio.com")' >> /usr/local/lib/R/etc/R
 RUN cd /tmp \
 	&& git clone https://github.com/eddelbuettel/littler.git
 
+# todo move this to top
 RUN apt-get install -y automake
 
 RUN cd /tmp/littler \
-	&& CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover=undefined,integer" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
+	&& CC="clang-3.7 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,function -fno-sanitize-recover=undefined,integer" PATH="/usr/local/lib/R/bin/:$PATH" ./bootstrap \
 	&& ./configure --prefix=/usr \
 	&& make \
 	&& make install \
@@ -121,4 +136,3 @@ RUN cd /tmp/littler \
 #	&& mv Rscript Rscriptdevelsan \
 #	&& ln -s Rdevelsan RDS \
 #	&& ln -s Rscriptdevelsan RDSscript
-
