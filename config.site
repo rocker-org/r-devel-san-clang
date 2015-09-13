@@ -1,0 +1,36 @@
+# remember to RECONFIGURE before MAKE
+           CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-omit-frame-pointer" 
+
+# try -nostdinc -nostdlibinc to stop it puling in gcc crap every time.
+# -nodefaultlibs dropped - it can't seem to find pthread things even if I specify -lgcc etc etc (-lc++ -lc++abi -lm -lc -lgcc_s -lgcc )
+           CXX="clang++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero,vptr,function -stdlib=libc++ -lc++abi -fno-omit-frame-pointer -I/usr/local/include/c++/v1 -I/usr/local/include -L/usr/local/lib/clang/3.7.0/lib/linux -L/usr/local/lib" 
+
+        # R figures out whether we need -std=c++11 itself, so don't need to add flag here (and it can be harmful?)
+           CXX1X="${CXX}"
+           CFLAGS="-pipe -Wall -pedantic -g -O2 -mtune=native" 
+           CXXFLAGS="-pipe -Wall -pedantic -g -O2 -mtune=native" 
+
+           FC="gfortran" 
+           F77="gfortran" 
+           FFLAGS="-pipe -pedantic -g -O2 -mtune=native" 
+           FCFLAGS="-pipe -pedantic -g -O2 -mtune=native" 
+
+           MAIN_LD=${CXX}
+# is this OPENMP_CFLAGS instead?
+           R_OPENMP_CFLAGS=-fopenmp 
+           R_LD_LIBRARY_PATH=/usr/local/lib
+
+# Debian happier this way:
+           LIBnn=lib 
+
+# random environment stuff, maybe important:
+	   R_PAPERSIZE=letter 
+           R_BATCHSAVE="--no-save --no-restore" 
+           R_BROWSER=xdg-open 
+           PAGER=/usr/bin/pager 
+           PERL=/usr/bin/perl 
+           R_UNZIPCMD=/usr/bin/unzip 
+           R_ZIPCMD=/usr/bin/zip 
+           R_PRINTCMD=/usr/bin/lpr 
+           AWK=/usr/bin/awk 
+
