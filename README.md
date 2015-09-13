@@ -1,6 +1,8 @@
 
 ## R-devel SAN using Clang: R development binaries with Sanitizer support
 
+Adapted by Jack Wasey to reflect a certain CRAN maintainer's [environment](http://www.stats.ox.ac.uk/pub/bdr/memtests/clang-ASAN/README.txt) which appeared to show address violations in some vector operations in my [icd9](https://github.com/jackwasey/icd9) package.
+
 The [Writing R Extensions manual](http://cran.r-project.org/doc/manuals/r-devel/R-exts.html)
 details in [Section 4.3](http://cran.r-project.org/doc/manuals/r-devel/R-exts.html#Checking-memory-access)
 how to check memory access.  Two sections are devoted to
