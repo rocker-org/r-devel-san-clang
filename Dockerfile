@@ -27,20 +27,12 @@ RUN apt-get update -qq \
     	pandoc-citeproc \
 	cmake automake
 
-#RUN apt-get build-dep clang-3.7
-
 ## Check out R-devel
 RUN cd /tmp \
 	&& svn co http://svn.r-project.org/R/trunk R-devel 
 
 # perhaps prefer a branch here, not always head. Original is actually SVN.
 RUN cd /tmp
-#RUN git clone http://llvm.org/git/llvm.git
-#RUN git clone http://llvm.org/git/clang.git
-#RUN git clone http://llvm.org/git/compiler-rt.git
-#RUN git clone http://llvm.org/git/clang-tools-extra.git
-#RUN git clone http://llvm.org/git/libcxx.git
-#RUN git clone http://llvm.org/git/libcxxabi.git
 RUN svn co https://llvm.org/svn/llvm-project/llvm/tags/RELEASE_370/final llvm
 RUN svn co https://llvm.org/svn/llvm-project/cfe/tags/RELEASE_370/final clang
 RUN svn co https://llvm.org/svn/llvm-project/clang-tools-extra/tags/RELEASE_370/final clang-tools-extra
@@ -117,5 +109,5 @@ RUN cd /tmp \
 #	&& cp -vax examples/*.r /usr/local/bin 
 
 # default cmd installs stressful packages
-RUN Rscript -e "install.packages(c('stringi', 'Rcpp', 'devtools')); library(devtools)"
+# RUN Rscript -e "install.packages(c('stringi', 'Rcpp', 'devtools')); library(devtools)"
 # install_github('jackwasey/icd9')"
