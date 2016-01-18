@@ -32,6 +32,7 @@ RUN apt-get update -qq \
 		libbz2-dev \
 		libcairo2-dev \
 		libcurl4-openssl-dev \
+		libgdal1-dev \
 		libjpeg-dev \
 		liblapack-dev \
 		liblzma-dev \
