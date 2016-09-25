@@ -10,8 +10,9 @@ MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuette
 RUN apt-get update -qq \
 	&& apt-get dist-upgrade -y
 
-## From the Build-Depends of the Debian R package, plus subversion, and clang-3.5
-## 
+## From the Build-Depends of the Debian R package, plus subversion, and clang-3.8
+## Compiler flags from https://www.stats.ox.ac.uk/pub/bdr/memtests/README.txt
+##
 ## Also add   git autotools-dev automake  so that we can build littler from source
 ##
 RUN apt-get update -qq \
@@ -20,11 +21,11 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-3.5 \
+		clang-3.8 \
+		libc++-dev \
+		libc++abi-dev \
 		debhelper \
 		default-jdk \
-		g++ \
-		gcc \
 		gfortran \
 		git \
 		groff-base \
@@ -80,13 +81,13 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CFLAGS="-pipe -std=gnu99 -Wall -pedantic -g" \
-	   CXXFLAGS="-pipe -Wall -pedantic -g" \
-	   FFLAGS="-pipe -Wall -pedantic -g" \
-	   FCFLAGS="-pipe -Wall -pedantic -g" \
-	   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-	   CXX="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
-	   CXX1X="clang++-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
+	   CC="clang-3.8 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
+	   CXX="clang++-3.8 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
+	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
+	   FFLAGS="-g -O2 -mtune=native" \
+	   FCFLAGS="-g -O2 -mtune=native" \
+	   CXXFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
+	   MAIN_LD="clang++-3.8 -stdlib=libc++ -fsanitize=undefined,address" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
