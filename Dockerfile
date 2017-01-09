@@ -21,7 +21,7 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-3.8 \
+		clang-3.9 \
 		libc++-dev \
 		libc++abi-dev \
 		debhelper \
@@ -46,7 +46,7 @@ RUN apt-get update -qq \
 		libxt-dev \
 		mpack \
 		subversion \
-		tcl8.5-dev \
+		tcl8.6-dev \
 		texinfo \
 		texlive-base \
 		texlive-extra-utils \
@@ -56,7 +56,7 @@ RUN apt-get update -qq \
 		texlive-latex-base \
 		texlive-latex-extra \
 		texlive-latex-recommended \
-		tk8.5-dev \
+		tk8.6-dev \
 		valgrind \
 		x11proto-core-dev \
 		xauth \
@@ -87,7 +87,7 @@ RUN cd /tmp/R-devel \
 	   FFLAGS="-g -O2 -mtune=native" \
 	   FCFLAGS="-g -O2 -mtune=native" \
 	   CXXFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
-	   MAIN_LD="clang++-3.8 -stdlib=libc++ -fsanitize=undefined,address" \
+	   MAIN_LD="clang++-3.9 -stdlib=libc++ -fsanitize=undefined,address" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ./configure --enable-R-shlib \
