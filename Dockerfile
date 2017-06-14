@@ -63,7 +63,8 @@ RUN apt-get update -qq \
 		xdg-utils \
 		xfonts-base \
 		xvfb \
-		zlib1g-dev 
+		zlib1g-dev \
+	&& rm -rf /var/lib/apt/lists/*
 
 ## Check out R-devel
 RUN cd /tmp \
