@@ -21,7 +21,7 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-3.9 \
+		clang-4.0 \
 		libc++-dev \
 		libc++abi-dev \
 		debhelper \
@@ -71,6 +71,7 @@ RUN cd /tmp \
 	&& svn co https://svn.r-project.org/R/trunk R-devel 
 
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago
+## Leak detection does not work at build time, see https://github.com/google/sanitizers/issues/764 and the fact that we cannot add privileges during build (e.g. https://unix.stackexchange.com/q/329816/19205)
 RUN cd /tmp/R-devel \
 	&& R_PAPERSIZE=letter \
 	   R_BATCHSAVE="--no-save --no-restore" \
@@ -82,15 +83,16 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CC="clang-3.9 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
-	   CXX="clang++-3.9 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
+	   CC="clang-4.0 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
+	   CXX="clang++-4.0 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
 	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
 	   FFLAGS="-g -O2 -mtune=native" \
 	   FCFLAGS="-g -O2 -mtune=native" \
 	   CXXFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
-	   MAIN_LD="clang++-3.9 -stdlib=libc++ -fsanitize=undefined,address" \
+	   MAIN_LD="clang++-4.0 -stdlib=libc++ -fsanitize=undefined,address" \
 	   FC="gfortran" \
 	   F77="gfortran" \
+	   ASAN_OPTIONS=detect_leaks=0 \
 	   ./configure --enable-R-shlib \
 	       --without-blas \
 	       --without-lapack \
@@ -98,9 +100,9 @@ RUN cd /tmp/R-devel \
 	       --without-recommended-packages \
 	       --program-suffix=dev \
 	       --disable-openmp \
-	&& make \
-	&& make install \
-	&& make clean
+	&& ASAN_OPTIONS=detect_leaks=0 make \
+	&& ASAN_OPTIONS=detect_leaks=0 make install \
+	&& ASAN_OPTIONS=detect_leaks=0 make clean
 
 ## Set Renviron to get libs from base R install
 RUN echo "R_LIBS=\${R_LIBS-'/usr/local/lib/R/site-library:/usr/local/lib/R/library:/usr/lib/R/library'}" >> /usr/local/lib/R/etc/Renviron
@@ -125,6 +127,6 @@ RUN cd /usr/local/bin \
 	&& ln -s Rscriptdevel RDscript
 
 ## Install littler
-RUN R --slave -e "install.packages('littler')" \
-	&& RD --slave -e "install.packages('littler')"
+RUN ASAN_OPTIONS=detect_leaks=0 R --slave -e "install.packages('littler')" \
+	&& ASAN_OPTIONS=detect_leaks=0 RD --slave -e "install.packages('littler')"
 
