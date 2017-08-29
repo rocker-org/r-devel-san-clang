@@ -13,6 +13,8 @@ provides a Docker container with such a binary, based on the R-devel sources.
 
 This repository uses clang; a [sibling repository](https://github.com/rocker-org/r-devel-san) uses gcc.
 
+**Note**: This container must be run with `docker run --cap-add SYS_PTRACE`, otherwise instrumented processes fail to start due to lacking permissions. Alternatively, an instrumented process can be run with `ASAN_OPTIONS=detect_leaks=0`, but this turns off leak detection.
+
 ## Rocker-Org
 
 This repository is part of [Rocker-Org](https://github.com/rocker-org) where
