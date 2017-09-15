@@ -42,8 +42,10 @@ RUN apt-get update -qq \
 		libpcre3-dev \
 		libpng-dev \
 		libreadline-dev \
+		libssl-dev \
 		libtiff5-dev \
 		libx11-dev \
+		libxml2-dev \
 		libxt-dev \
 		mpack \
 		subversion \
