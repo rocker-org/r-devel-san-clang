@@ -22,6 +22,7 @@ RUN apt-get update -qq \
 		bash-completion \
 		bison \
 		clang-4.0 \
+		llvm-4.0 \
 		libc++-dev \
 		libc++abi-dev \
 		debhelper \
@@ -41,8 +42,10 @@ RUN apt-get update -qq \
 		libpcre3-dev \
 		libpng-dev \
 		libreadline-dev \
+		libssl-dev \
 		libtiff5-dev \
 		libx11-dev \
+		libxml2-dev \
 		libxt-dev \
 		mpack \
 		subversion \
@@ -66,8 +69,9 @@ RUN apt-get update -qq \
 		zlib1g-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
-## Check out R-devel
-RUN cd /tmp \
+## Add symlink and check out R-devel
+RUN ln -s $(which llvm-symbolizer-4.0) /usr/local/bin/llvm-symbolizer \
+	&& cd /tmp \
 	&& svn co https://svn.r-project.org/R/trunk R-devel 
 
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago
@@ -83,8 +87,8 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CC="clang-4.0 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
-	   CXX="clang++-4.0 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer" \
+	   CC="clang-4.0 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
+	   CXX="clang++-4.0 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
 	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
 	   FFLAGS="-g -O2 -mtune=native" \
 	   FCFLAGS="-g -O2 -mtune=native" \
