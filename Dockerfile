@@ -21,8 +21,7 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-7.0 \
-		llvm-7.0 \
+		clang \
 		libc++-dev \
 		libc++abi-dev \
 		debhelper \
@@ -47,6 +46,7 @@ RUN apt-get update -qq \
 		libx11-dev \
 		libxml2-dev \
 		libxt-dev \
+                llvm-7 \
 		mpack \
 		subversion \
 		tcl8.6-dev \
@@ -70,7 +70,7 @@ RUN apt-get update -qq \
 	&& rm -rf /var/lib/apt/lists/*
 
 ## Add symlink and check out R-devel
-RUN ln -s $(which llvm-symbolizer-7.0) /usr/local/bin/llvm-symbolizer \
+RUN ln -s $(which llvm-symbolizer-7) /usr/local/bin/llvm-symbolizer \
 	&& cd /tmp \
 	&& svn co https://svn.r-project.org/R/trunk R-devel
 
@@ -87,13 +87,13 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CC="clang-7.0 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
-	   CXX="clang++-7.0 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
+	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
+	   CXX="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
 	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
 	   FFLAGS="-g -O2 -mtune=native" \
 	   FCFLAGS="-g -O2 -mtune=native" \
 	   CXXFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
-	   MAIN_LD="clang++-7.0 -stdlib=libc++ -fsanitize=undefined,address" \
+	   MAIN_LD="clang++ -stdlib=libc++ -fsanitize=undefined,address" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ASAN_OPTIONS=detect_leaks=0 \
