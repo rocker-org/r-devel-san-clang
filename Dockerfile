@@ -21,8 +21,8 @@ RUN apt-get update -qq \
 		autotools-dev \
 		bash-completion \
 		bison \
-		clang-4.0 \
-		llvm-4.0 \
+		clang-7.0 \
+		llvm-7.0 \
 		libc++-dev \
 		libc++abi-dev \
 		debhelper \
@@ -70,9 +70,9 @@ RUN apt-get update -qq \
 	&& rm -rf /var/lib/apt/lists/*
 
 ## Add symlink and check out R-devel
-RUN ln -s $(which llvm-symbolizer-4.0) /usr/local/bin/llvm-symbolizer \
+RUN ln -s $(which llvm-symbolizer-7.0) /usr/local/bin/llvm-symbolizer \
 	&& cd /tmp \
-	&& svn co https://svn.r-project.org/R/trunk R-devel 
+	&& svn co https://svn.r-project.org/R/trunk R-devel
 
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago
 ## Leak detection does not work at build time, see https://github.com/google/sanitizers/issues/764 and the fact that we cannot add privileges during build (e.g. https://unix.stackexchange.com/q/329816/19205)
@@ -87,13 +87,13 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CC="clang-4.0 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
-	   CXX="clang++-4.0 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
+	   CC="clang-7.0 -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
+	   CXX="clang++-7.0 -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
 	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
 	   FFLAGS="-g -O2 -mtune=native" \
 	   FCFLAGS="-g -O2 -mtune=native" \
 	   CXXFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
-	   MAIN_LD="clang++-4.0 -stdlib=libc++ -fsanitize=undefined,address" \
+	   MAIN_LD="clang++-7.0 -stdlib=libc++ -fsanitize=undefined,address" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ASAN_OPTIONS=detect_leaks=0 \
@@ -118,7 +118,7 @@ RUN echo 'options("repos"="http://cran.rstudio.com")' >> /usr/local/lib/R/etc/Rp
 ##   1)	 apt-get install git autotools-dev automake
 ##   2)	 use CC from RD CMD config CC, ie same as R
 ##   3)	 use PATH to include RD's bin, ie
-## ie 
+## ie
 ##   CC="clang-3.5 -fsanitize=undefined -fno-sanitize=float-divide-by-zero,vptr,function -fno-sanitize-recover" \
 ##   PATH="/usr/local/lib/R/bin/:$PATH" \
 ##   ./bootstrap
@@ -133,4 +133,3 @@ RUN cd /usr/local/bin \
 ## Install littler
 RUN ASAN_OPTIONS=detect_leaks=0 R --slave -e "install.packages('littler')" \
 	&& ASAN_OPTIONS=detect_leaks=0 RD --slave -e "install.packages('littler')"
-
