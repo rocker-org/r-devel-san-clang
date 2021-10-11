@@ -46,10 +46,10 @@ RUN apt-get update -qq \
 		libx11-dev \
 		libxml2-dev \
 		libxt-dev \
-                llvm-7 \
+                llvm \
 		mpack \
 		subversion \
-		tcl8.6-dev \
+		tcl8.7-dev \
 		texinfo \
 		texlive-base \
 		texlive-extra-utils \
@@ -59,7 +59,7 @@ RUN apt-get update -qq \
 		texlive-latex-base \
 		texlive-latex-extra \
 		texlive-latex-recommended \
-		tk8.6-dev \
+		tk8.7-dev \
 		valgrind \
 		x11proto-core-dev \
 		xauth \
@@ -87,8 +87,8 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
-	   CXX="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope" \
+	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope -fno-sanitize=alignment" \
+	   CXX="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope -fno-sanitize=alignment -frtti" \
 	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
 	   FFLAGS="-g -O2 -mtune=native" \
 	   FCFLAGS="-g -O2 -mtune=native" \
