@@ -32,3 +32,13 @@ jobs:
         push: true
         tags: rocker/r-devel-ubsan-clang:latest
         
+    - name: Timestamp
+      run: date --rfc-3339=seconds > lastBuild.txt
+
+    - name: Commit and push
+      uses: EndBug/add-and-commit@v7
+      with:
+        add: "lastBuild.txt"
+        push: true
+        committer_name: GitHub Actions
+        committer_email: actions@github.com
