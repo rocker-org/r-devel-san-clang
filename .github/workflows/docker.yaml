@@ -40,5 +40,4 @@ jobs:
       with:
         add: "lastBuild.txt"
         push: true
-        committer_name: GitHub Actions
-        committer_email: actions@github.com
+        default_author: github_actions
