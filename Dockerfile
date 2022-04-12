@@ -49,7 +49,7 @@ RUN apt-get update -qq \
                 llvm \
 		mpack \
 		subversion \
-		tcl8.7-dev \
+		tcl-dev \
 		texinfo \
 		texlive-base \
 		texlive-extra-utils \
@@ -59,7 +59,7 @@ RUN apt-get update -qq \
 		texlive-latex-base \
 		texlive-latex-extra \
 		texlive-latex-recommended \
-		tk8.7-dev \
+		tk-dev \
 		valgrind \
 		x11proto-core-dev \
 		xauth \
