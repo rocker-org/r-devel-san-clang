@@ -2,8 +2,8 @@ name: docker
 
 on:
   push:
-  schedule:
-  - cron: "22 2 * * 2"
+#  schedule:
+#  - cron: "22 2 * * 2"
     
 jobs:
   build:
