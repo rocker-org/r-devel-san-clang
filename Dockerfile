@@ -14,6 +14,7 @@ RUN apt-get update -qq \
 ## Compiler flags from https://www.stats.ox.ac.uk/pub/bdr/memtests/README.txt
 ##
 ## Also add   git autotools-dev automake  so that we can build littler from source
+##            libclang-rt-16-dev          now required
 ##
 RUN apt-get update -qq \
 	&& apt-get install -t unstable -y --no-install-recommends \
@@ -32,6 +33,7 @@ RUN apt-get update -qq \
 		libblas-dev \
 		libbz2-dev \
 		libcairo2-dev \
+                libclang-rt-16-dev \
 		libcurl4-openssl-dev \
 		libjpeg-dev \
 		liblapack-dev \
@@ -87,13 +89,12 @@ RUN cd /tmp/R-devel \
 	   R_PRINTCMD=/usr/bin/lpr \
 	   LIBnn=lib \
 	   AWK=/usr/bin/awk \
-	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope -fno-sanitize=alignment" \
-	   CXX="clang++ -stdlib=libc++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -fsanitize-address-use-after-scope -fno-sanitize=alignment -frtti" \
-	   CFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
+	   CC="clang -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-sanitize=alignment -fno-omit-frame-pointer" \
+	   CXX="clang++ -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-sanitize=alignment -fno-omit-frame-pointer -frtti" \
+	   CFLAGS="-g -O3 -Wall -pedantic" \
 	   FFLAGS="-g -O2 -mtune=native" \
-	   FCFLAGS="-g -O2 -mtune=native" \
-	   CXXFLAGS="-g -O3 -Wall -pedantic -mtune=native" \
-	   MAIN_LD="clang++ -stdlib=libc++ -fsanitize=undefined,address" \
+           CXXFLAGS="-g -O3 -Wall -pedantic" \
+           MAIN_LD="clang++ -fsanitize=undefined,address" \
 	   FC="gfortran" \
 	   F77="gfortran" \
 	   ASAN_OPTIONS=detect_leaks=0 \
