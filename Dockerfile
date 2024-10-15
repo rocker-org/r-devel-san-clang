@@ -3,8 +3,10 @@
 ## start with the Docker 'base R' Debian-based image
 FROM r-base:latest
 
-## This handle reaches Carl and Dirk
-MAINTAINER "Carl Boettiger and Dirk Eddelbuettel" rocker-maintainers@eddelbuettel.com
+LABEL org.label-schema.license="GPL-2.0" \
+      org.label-schema.vcs-url="https://github.com/rocker-org/" \
+      org.label-schema.vendor="Rocker Project" \
+      maintainer="Dirk Eddelbuettel <edd@debian.org>"
 
 ## Remain current
 RUN apt-get update -qq \
@@ -33,7 +35,7 @@ RUN apt-get update -qq \
 		libblas-dev \
 		libbz2-dev \
 		libcairo2-dev \
-                libclang-rt-16-dev \
+                libclang-rt-19-dev \
 		libcurl4-openssl-dev \
 		libjpeg-dev \
 		liblapack-dev \
