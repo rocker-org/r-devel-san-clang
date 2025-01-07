@@ -9,8 +9,8 @@ LABEL org.label-schema.license="GPL-2.0" \
       maintainer="Dirk Eddelbuettel <edd@debian.org>"
 
 ## Remain current
-RUN apt-get update -qq \
-	&& apt-get dist-upgrade -y
+RUN apt update -qq \
+	&& apt dist-upgrade -y
 
 ## From the Build-Depends of the Debian R package, plus subversion, and clang-3.8
 ## Compiler flags from https://www.stats.ox.ac.uk/pub/bdr/memtests/README.txt
@@ -18,8 +18,8 @@ RUN apt-get update -qq \
 ## Also add   git autotools-dev automake  so that we can build littler from source
 ##            libclang-rt-16-dev          now required
 ##
-RUN apt-get update -qq \
-	&& apt-get install -t unstable -y --no-install-recommends \
+RUN apt update -qq \
+	&& apt install -t unstable -y --no-install-recommends \
 		automake \
 		autotools-dev \
 		bash-completion \
@@ -134,5 +134,7 @@ RUN cd /usr/local/bin \
 	&& ln -s Rscriptdevel RDscript
 
 ## Install littler
-RUN ASAN_OPTIONS=detect_leaks=0 R --slave -e "install.packages('littler')" \
-	&& ASAN_OPTIONS=detect_leaks=0 RD --slave -e "install.packages('littler')"
+RUN ASAN_OPTIONS='detect_leaks=0' R --slave -e "install.packages('littler')" \
+	&& ASAN_OPTIONS='detect_leaks=0' RD --slave -e "install.packages('littler')"
+
+CMD ["bash"]
