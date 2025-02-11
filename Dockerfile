@@ -42,7 +42,7 @@ RUN apt update -qq \
 		liblzma-dev \
 		libncurses5-dev \
 		libpango1.0-dev \
-		libpcre3-dev \
+		libpcre2-dev \
 		libpng-dev \
 		libreadline-dev \
 		libssl-dev \
