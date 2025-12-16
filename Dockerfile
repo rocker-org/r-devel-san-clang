@@ -35,7 +35,8 @@ RUN apt update -qq \
 		libblas-dev \
 		libbz2-dev \
 		libcairo2-dev \
-                libclang-rt-19-dev \
+                libclang-rt-dev \
+                libclang-rt-21-dev \
 		libcurl4-openssl-dev \
 		libjpeg-dev \
 		liblapack-dev \
@@ -81,6 +82,8 @@ RUN ln -s $(which llvm-symbolizer-7) /usr/local/bin/llvm-symbolizer \
 ## Build and install according extending the standard 'recipe' I emailed/posted years ago
 ## Leak detection does not work at build time, see https://github.com/google/sanitizers/issues/764 and the fact that we cannot add privileges during build (e.g. https://unix.stackexchange.com/q/329816/19205)
 RUN cd /tmp/R-devel \
+        && which clang \
+        && clang --version \
 	&& R_PAPERSIZE=letter \
 	   R_BATCHSAVE="--no-save --no-restore" \
 	   R_BROWSER=xdg-open \
